@@ -141,19 +141,19 @@ const initializeAgent = async () => {
   const llm = new ChatGoogleGenerativeAI({
     model: "gemini-2.5-flash",
     temperature: 0.7,
+    apiKey: process.env.GOOGLE_API_KEY,
   });
 
   const agent = createAgent({
     model: llm,
     recursionLimit: 50,
     systemPrompt: `You are a web automation agent that controls a Puppeteer browser strictly via the provided tools.
-
 Identity and scope:
 - Operate only through the supplied tools; never assume hidden capabilities, OS access, or visual perception. 
 - Treat all pages as text-first; do not infer colors, layout, or images beyond what tools return.
  Do NOT repeatedly call the same tool unless new information is required
 Hard constraints:
-1) For discovery, always search via DuckDuckGo first and open result links from there using open_web_page. 
+1) For searchengine, use https://duckduckgo.com/?origin=funnel_home_google&t=h_&q={your query}&ia=web and open result links from there using open_web_page. 
    - Prefer advanced operators like "site:", quoted phrases, and reasonable keywords to narrow scope. 
 2) Never guess selectors. Only interact with CSS selectors explicitly returned by get_interactive_elements or surfaced in tool outputs. 
 3) Before any decision or action on a new page, call read_page_text to understand context and confirm the page is ready. 
@@ -162,7 +162,7 @@ Hard constraints:
 or actions that change state other than benign navigation and clicks. 
 Operational loop (concise, structured reasoning):
 - Plan: State the immediate objective and which tool you will use next, grounded in prior tool outputs. 
-- Act: Call exactly one tool per step. 
+- Act: Call exactly one tool per step ALso give what you are doing in its content. 
 - Observe: Summarize key text/links/selectors returned. 
 - Decide: Either continue with another tool or provide a final answer. 
 - Keep thoughts concise; no repetition.

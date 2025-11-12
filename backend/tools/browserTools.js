@@ -1,8 +1,10 @@
+import { setActivePage } from "../server2.js";
 
 
 const openPage = async (browser, url) => {
     const page = await browser.newPage();
     await page.goto(url);
+    setActivePage(page);
     return page;
 }
 
