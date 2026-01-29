@@ -1,21 +1,23 @@
 import express from "express";
-import callAgent from "./test/server.js";
+import agentRoutes from "./routes/agentRoutes.js";
+
 const app = express();
 const PORT = 3001;
 import cors from "cors";
-import {getBrowser} from "./util/Browser.js";
+import { getBrowser } from "./util/Browser.js";
 
 app.use(cors());
+app.use(express.json()); // Add JSON middleware for agent routes
 let activePage = null;
 
 export async function initializePage() {
   const browser = await getBrowser();
   const pages = await browser.pages();
-  activePage = pages[0] || await browser.newPage();
+  activePage = pages[0] || (await browser.newPage());
   return activePage;
 }
 
-export async function setActivePage(page){
+export async function setActivePage(page) {
   activePage = page;
 }
 
@@ -34,7 +36,6 @@ app.get("/screenshot", async (req, res) => {
       encoding: "base64",
       type: "jpeg",
       quality: parseInt(req.query.quality) || 80,
-    
     });
 
     res.json({
@@ -65,7 +66,7 @@ app.get("/stream", async (req, res) => {
     "X-Accel-Buffering": "no",
   });
 
-  const response = await callAgent(searchQuery, res);
+  // const response = await callAgent(searchQuery, res);
   res.end();
 
   req.on("close", () => {
@@ -74,12 +75,13 @@ app.get("/stream", async (req, res) => {
   });
 });
 
-
+// Use agent routes
+app.use("/api/agent", agentRoutes);
 
 app.use((req, res) => {
   res.status(404).send("Not found");
 });
 
 app.listen(PORT, () => {
-  console.log(`Server listening on port http://lohalhost:${PORT}`);
+  console.log(`Server listening on port http://localhost:${PORT}`);
 });
